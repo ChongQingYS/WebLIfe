@@ -7,6 +7,10 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <div class="box"></div>
+    <script>
+        document.getElementsByClassName(".box")[0];
+        
+    </script>
 </body>
 </html>
