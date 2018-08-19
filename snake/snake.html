@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .map {
+            width: 800px;
+            height: 600px;
+            background-color: #cccccc;
+            margin: 50px auto;
+            position: relative;
+        }
+        .btn {
+            width: 250px;
+            height: 40px;
+            margin: 50px auto;
+        }
+        input {
+            float: left;
+            margin-left: 10px;
+            width: 50px;
+            height: 30px;
+            line-height: 30;
+            text-align: center;
+
+        }
+    </style>
+</head>
+<script>
+    window.onload = function () {
+        var btn = document.getElementsByTagName("input");
+        btn[0].onclick = function () {
+            var gmae = new Game();
+            gmae.init(document.querySelector(".map"),150)
+        };
+        btn[1].onclick = function () {
+            var gmae = new Game();
+            gmae.init(document.querySelector(".map"),80)
+        };
+        btn[2].onclick = function () {
+            var gmae = new Game();
+            gmae.init(document.querySelector(".map"),30)
+        };
+        btn[3].onclick = function () {
+            var gmae = new Game();
+            gmae.init(document.querySelector(".map"),10)
+        };
+
+    }
+    function Game() {
+       this.food = new Food();
+        this.snake = new Snake();
+        this.timer = null;
+        This = this;
+    }
+    Game.prototype.init = function (map,level) {
+        this.food.init(map);
+        this.snake.init(map);
+        this.timer = setInterval(function () {
+            This.snake.createSnake(map);
+            This.snake.moveSnake(map);
+            var hearX = map.offsetWidth/This.snake.width;
+            var hearY = map.offsetHeight/This.snake.height;
+            if (This.snake.json[0].x<-1||This.snake.json[0].x>hearX){
+                alert("Game over");
+                clearInterval(This.timer)
+            }else if (This.snake.json[0].y<-1||This.snake.json[0].y>hearY){
+                alert("Game over");
+                clearInterval(This.timer)
+            };
+            This.fnRule(map);
+        },level)
+    };
+    Game.prototype.fnRule = function (map) {
+        // console.log(this.snake.json[0].x*this.snake.width);
+        // console.log(this.food.x)
+        // if (this.snake.json[0].x*this.snake.width==this.food.x&&this.snake.json[0].y*this.snake.height==this.food.y){
+        //     alert(1)
+        // }
+        if (snakeElements[0].offsetLeft==foodElements[0].offsetLeft&&snakeElements[0].offsetTop==foodElements[0].offsetTop){
+            var lastsnake = this.snake.json[this.snake.json.length-1];
+            this.snake.json.push({
+                x:lastsnake.x,
+                y:lastsnake.y,
+                color:lastsnake.color
+            })
+            this.food.init(map);
+        }
+    }
+    /*创建食物构造函数*/
+    var foodElements = [];
+    var snakeElements = [];
+    function Food(width, height, x, y, color) {
+        this.width  = width||20;
+        this.height = height||20;
+        this.x = x||0;
+        this.y = y||0;
+        this.color = color||"green";
+        this.food = null;
+    }
+    /*食物初始化*/
+    Food.prototype.init = function (map) {
+        this.foodCreate(map);
+
+    };
+    /*创建食物*/
+    Food.prototype.foodCreate = function (map) {
+        remove();
+        this.food = document.createElement("div");
+        map.appendChild(this.food);
+        this.food.style.width = this.width+"px";
+        this.food.style.height = this.height+"px";
+        this.food.style.backgroundColor = this.color;
+        this.food.style.position = "absolute";
+        this.x= parseInt(Math.random()*map.offsetWidth/this.food.offsetWidth)*this.food.offsetWidth;
+        this.y = parseInt(Math.random()*map.offsetHeight/this.food.offsetHeight)*this.food.offsetHeight;
+        if (this.x<0){
+            this.x=0
+        } else if(this.x>map.offsetWidth){
+            this.x = map.offsetWidth
+        };
+        if (this.y<0){
+            this.y=0
+        } else if (this.y>map.offsetHeight){
+            this.y = map.offsetHeight
+        } ;
+        this.food.style.left = this.x+"px";
+        this.food.style.top = this.y +"px";
+        foodElements.push(this.food)
+    };
+    /*删除新创建的食物*/
+    function remove() {
+        for (var i=0;i<foodElements.length;i++){
+            var ele = foodElements[i];
+            ele.parentNode.removeChild(ele);
+            foodElements.splice(i,1);
+        }
+    };
+
+    /*创建小蛇*/
+    function Snake(width, height,json) {
+        this.width  = width||20;
+        this.height = height||20;
+        this.json = [
+            {x:2,y:2,color:"red"},
+            {x:1,y:2,color:"green"},
+            {x:0,y:2,color:"green"},
+        ];
+        this.direction = "right";
+        that = this;
+
+    };
+    Snake.prototype.init = function (map) {
+        this.createSnake(map);
+        this.fnDir();
+
+
+    };
+    Snake.prototype.createSnake = function (map) {
+        remove2();
+        for (var i=0;i<this.json.length;i++){
+            var aDiv = document.createElement("div");
+            map.appendChild(aDiv);
+            aDiv.style.position = "absolute";
+            aDiv.style.width = this.width+"px";
+            aDiv.style.height = this.height+"px";
+            aDiv.style.left = this.json[i].x*this.width+"px";
+            aDiv.style.top = this.json[i].y*this.height+"px";
+            aDiv.style.backgroundColor = this.json[i].color;
+            snakeElements.push(aDiv);
+        };
+
+    };
+    Snake.prototype.moveSnake = function (map) {
+       var i = this.json.length-1;
+       for (;i>0;i--){
+           this.json[i].x=this.json[i-1].x;
+           this.json[i].y=this.json[i-1].y;
+       }
+      switch (this.direction){
+          case "right":this.json[0].x +=1;break;
+          case "left":this.json[0].x -=1;break;
+          case "top":this.json[0].y -=1;break;
+          case "bottom":this.json[0].y +=1;break;
+      };
+
+
+    };
+    Snake.prototype.fnDir = function () {
+        document.addEventListener("keyup",function (ev) {
+            var ev = ev||window.event;
+            switch (ev.keyCode) {
+                case 38:that.direction = "top";break;
+                case 40:that.direction = "bottom";break;
+                case 37:that.direction = "left";break;
+                case 39:that.direction = "right";break;
+            }
+        })
+    }
+    function remove2() {
+        var i = snakeElements.length-1;
+        for (;i>=0;i--){
+            var ele = snakeElements[i];
+            ele.parentNode.removeChild(ele);
+            snakeElements.splice(i,1);
+        }
+    };
+
+
+
+</script>
+<body>
+<div class="btn">
+    <input type="button"value="简单">
+    <input type="button"value="一般">
+    <input type="button"value="困难">
+    <input type="button"value="地狱">
+</div>
+
+<div class="map"></div>
+
+</body>
+</html>
